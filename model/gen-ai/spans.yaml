@@ -107,6 +107,9 @@ attribute_groups:
       - ref: gen_ai.output.type
         requirement_level:
           conditionally_required: When applicable and if the request includes an output format.
+      - ref: gen_ai.request.previous_response_id
+        requirement_level:
+          recommended: When available and if the request references a previous response.
       - ref: gen_ai.response.finish_reasons
         requirement_level: recommended
       - ref: gen_ai.conversation.id
@@ -209,6 +212,9 @@ spans:
       - ref: gen_ai.request.reasoning.level
         requirement_level:
           recommended: When applicable.
+      - ref: gen_ai.request.previous_response_id
+        requirement_level:
+          recommended: When available and if the request references a previous response.
       - ref: gen_ai.response.id
         requirement_level: recommended
       - ref: gen_ai.response.model

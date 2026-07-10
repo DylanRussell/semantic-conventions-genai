@@ -55,6 +55,7 @@ def run_chat():
         # Emit inference operation details event
         event_attrs = {
             "gen_ai.operation.name": "chat",
+            "gen_ai.provider.name": "gcp.gemini",
             "gen_ai.request.model": request_model,
             "gen_ai.input.messages": json.dumps(
                 [{"role": "user", "parts": [{"type": "text", "content": prompt_text}]}]
@@ -88,6 +89,84 @@ def run_chat():
         )
 
         print(f"    -> {response.text[:60]}")
+
+
+def run_interactions_continuation():
+    """Scenario: Google GenAI Interactions API continuation."""
+    from google import genai
+    from google.genai import types
+
+    print("  [interactions_continuation] interactions continuation via Google GenAI (reference implementation)")
+    client = genai.Client(
+        api_key="mock-key",
+        http_options=types.HttpOptions(
+            base_url=MOCK_BASE_URL,
+            api_version="v1beta",
+        ),
+    )
+    request_model = "gemini-2.0-flash"
+    previous_interaction_id = "interaction-prev-123"
+    span_attributes = {
+        "gen_ai.operation.name": "chat",
+        "gen_ai.provider.name": "gcp.gemini",
+        "gen_ai.request.model": request_model,
+        "gen_ai.request.previous_response_id": previous_interaction_id,
+    }
+    with _reference_tracer.start_as_current_span("chat gemini-2.0-flash", attributes=span_attributes) as span:
+        prompt_text = "Follow up."
+        response = client.models.generate_content(
+            model=request_model,
+            contents=prompt_text,
+        )
+        if response.model_version:
+            span.set_attribute("gen_ai.response.model", response.model_version)
+        if response.candidates and response.candidates[0].finish_reason:
+            span.set_attribute("gen_ai.response.finish_reasons", [str(response.candidates[0].finish_reason)])
+        if hasattr(response, "usage_metadata") and response.usage_metadata:
+            if hasattr(response.usage_metadata, "prompt_token_count") and response.usage_metadata.prompt_token_count:
+                span.set_attribute("gen_ai.usage.input_tokens", response.usage_metadata.prompt_token_count)
+            if (
+                hasattr(response.usage_metadata, "candidates_token_count")
+                and response.usage_metadata.candidates_token_count
+            ):
+                span.set_attribute("gen_ai.usage.output_tokens", response.usage_metadata.candidates_token_count)
+
+        event_attrs = {
+            "gen_ai.operation.name": "chat",
+            "gen_ai.provider.name": "gcp.gemini",
+            "gen_ai.request.model": request_model,
+            "gen_ai.request.previous_response_id": previous_interaction_id,
+            "gen_ai.input.messages": json.dumps(
+                [{"role": "user", "parts": [{"type": "text", "content": prompt_text}]}]
+            ),
+            "gen_ai.output.messages": json.dumps(
+                [
+                    {
+                        "role": "assistant",
+                        "parts": [{"type": "text", "content": response.text}],
+                        "finish_reason": str(response.candidates[0].finish_reason) if response.candidates else None,
+                    }
+                ]
+            ),
+        }
+        if response.model_version:
+            event_attrs["gen_ai.response.model"] = response.model_version
+        if response.candidates and response.candidates[0].finish_reason:
+            event_attrs["gen_ai.response.finish_reasons"] = [str(response.candidates[0].finish_reason)]
+        if hasattr(response, "usage_metadata") and response.usage_metadata:
+            if hasattr(response.usage_metadata, "prompt_token_count") and response.usage_metadata.prompt_token_count:
+                event_attrs["gen_ai.usage.input_tokens"] = response.usage_metadata.prompt_token_count
+            if (
+                hasattr(response.usage_metadata, "candidates_token_count")
+                and response.usage_metadata.candidates_token_count
+            ):
+                event_attrs["gen_ai.usage.output_tokens"] = response.usage_metadata.candidates_token_count
+        reference_event_logger().emit(
+            event_name="gen_ai.client.inference.operation.details",
+            body="Inference operation details",
+            attributes=event_attrs,
+        )
+        print(f"    -> previous_response_id: {previous_interaction_id}")
 
 
 def run_chat_tool_call():
@@ -256,6 +335,7 @@ def main():
     # NO instrument() call - reference implementation only
 
     run_chat()
+    run_interactions_continuation()
     run_chat_tool_call()
     run_chat_streaming()
     run_embeddings()
