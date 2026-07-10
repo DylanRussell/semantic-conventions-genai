@@ -290,7 +290,9 @@ def run_responses_continuation_reference(client):
     with _reference_tracer.start_as_current_span("chat gpt-4o-mini", attributes=span_attributes) as span:
         span.set_attribute(
             "gen_ai.input.messages",
-            json.dumps([{"role": "user", "parts": [{"type": "text", "content": continuation_conversation[0]["content"]}]}]),
+            json.dumps(
+                [{"role": "user", "parts": [{"type": "text", "content": continuation_conversation[0]["content"]}]}]
+            ),
         )
         response = client.responses.create(
             model=request_model,
