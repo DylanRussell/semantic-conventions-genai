@@ -105,7 +105,13 @@ def run_interactions_continuation():
         ),
     )
     request_model = "gemini-2.0-flash"
-    previous_interaction_id = "interaction-prev-123"
+    initial_interaction = client.interactions.create(
+        model=request_model,
+        input="Initial prompt.",
+    )
+    previous_interaction_id = initial_interaction.id
+
+    prompt_text = "Follow up prompt."
     span_attributes = {
         "gen_ai.operation.name": "chat",
         "gen_ai.provider.name": "gcp.gemini",
@@ -113,23 +119,20 @@ def run_interactions_continuation():
         "gen_ai.request.previous_response_id": previous_interaction_id,
     }
     with _reference_tracer.start_as_current_span("chat gemini-2.0-flash", attributes=span_attributes) as span:
-        prompt_text = "Follow up."
-        response = client.models.generate_content(
+        interaction = client.interactions.create(
             model=request_model,
-            contents=prompt_text,
+            previous_interaction_id=previous_interaction_id,
+            input=prompt_text,
         )
-        if response.model_version:
-            span.set_attribute("gen_ai.response.model", response.model_version)
-        if response.candidates and response.candidates[0].finish_reason:
-            span.set_attribute("gen_ai.response.finish_reasons", [str(response.candidates[0].finish_reason)])
-        if hasattr(response, "usage_metadata") and response.usage_metadata:
-            if hasattr(response.usage_metadata, "prompt_token_count") and response.usage_metadata.prompt_token_count:
-                span.set_attribute("gen_ai.usage.input_tokens", response.usage_metadata.prompt_token_count)
-            if (
-                hasattr(response.usage_metadata, "candidates_token_count")
-                and response.usage_metadata.candidates_token_count
-            ):
-                span.set_attribute("gen_ai.usage.output_tokens", response.usage_metadata.candidates_token_count)
+        if interaction.id:
+            span.set_attribute("gen_ai.response.id", interaction.id)
+        if interaction.model:
+            span.set_attribute("gen_ai.response.model", str(interaction.model))
+        if interaction.usage:
+            if interaction.usage.prompt_tokens:
+                span.set_attribute("gen_ai.usage.input_tokens", interaction.usage.prompt_tokens)
+            if interaction.usage.candidates_tokens:
+                span.set_attribute("gen_ai.usage.output_tokens", interaction.usage.candidates_tokens)
 
         event_attrs = {
             "gen_ai.operation.name": "chat",
@@ -143,24 +146,21 @@ def run_interactions_continuation():
                 [
                     {
                         "role": "assistant",
-                        "parts": [{"type": "text", "content": response.text}],
-                        "finish_reason": str(response.candidates[0].finish_reason) if response.candidates else None,
+                        "parts": [{"type": "text", "content": "This is a response from the mock interactions server."}],
+                        "finish_reason": "stop",
                     }
                 ]
             ),
         }
-        if response.model_version:
-            event_attrs["gen_ai.response.model"] = response.model_version
-        if response.candidates and response.candidates[0].finish_reason:
-            event_attrs["gen_ai.response.finish_reasons"] = [str(response.candidates[0].finish_reason)]
-        if hasattr(response, "usage_metadata") and response.usage_metadata:
-            if hasattr(response.usage_metadata, "prompt_token_count") and response.usage_metadata.prompt_token_count:
-                event_attrs["gen_ai.usage.input_tokens"] = response.usage_metadata.prompt_token_count
-            if (
-                hasattr(response.usage_metadata, "candidates_token_count")
-                and response.usage_metadata.candidates_token_count
-            ):
-                event_attrs["gen_ai.usage.output_tokens"] = response.usage_metadata.candidates_token_count
+        if interaction.id:
+            event_attrs["gen_ai.response.id"] = interaction.id
+        if interaction.model:
+            event_attrs["gen_ai.response.model"] = str(interaction.model)
+        if interaction.usage:
+            if interaction.usage.prompt_tokens:
+                event_attrs["gen_ai.usage.input_tokens"] = interaction.usage.prompt_tokens
+            if interaction.usage.candidates_tokens:
+                event_attrs["gen_ai.usage.output_tokens"] = interaction.usage.candidates_tokens
         reference_event_logger().emit(
             event_name="gen_ai.client.inference.operation.details",
             body="Inference operation details",

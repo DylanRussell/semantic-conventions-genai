@@ -253,14 +253,27 @@ def run_responses_continuation_reference(client):
     """Scenario: Responses API continuation with previous_response_id."""
     print("  [responses_continuation] responses with previous_response_id (reference implementation)")
     request_model = "gpt-4o-mini"
-    conversation = [
+    initial_conversation = [
+        {
+            "type": "message",
+            "role": "user",
+            "content": "Initial prompt.",
+        }
+    ]
+    initial_response = client.responses.create(
+        model=request_model,
+        input=initial_conversation,
+        store=False,
+    )
+    previous_response_id = initial_response.id
+
+    continuation_conversation = [
         {
             "type": "message",
             "role": "user",
             "content": "Follow up on previous response.",
         }
     ]
-    previous_response_id = "resp_previous123"
     host, port = mock_server_host_port(MOCK_BASE_URL)
     span_attributes = {
         "gen_ai.operation.name": "chat",
@@ -277,12 +290,12 @@ def run_responses_continuation_reference(client):
     with _reference_tracer.start_as_current_span("chat gpt-4o-mini", attributes=span_attributes) as span:
         span.set_attribute(
             "gen_ai.input.messages",
-            json.dumps([{"role": "user", "parts": [{"type": "text", "content": conversation[0]["content"]}]}]),
+            json.dumps([{"role": "user", "parts": [{"type": "text", "content": continuation_conversation[0]["content"]}]}]),
         )
         response = client.responses.create(
             model=request_model,
             previous_response_id=previous_response_id,
-            input=conversation,
+            input=continuation_conversation,
             store=False,
         )
 
@@ -303,7 +316,7 @@ def run_responses_continuation_reference(client):
             "gen_ai.response.id": response.id,
             "gen_ai.response.model": response.model,
             "gen_ai.input.messages": json.dumps(
-                [{"role": "user", "parts": [{"type": "text", "content": conversation[0]["content"]}]}]
+                [{"role": "user", "parts": [{"type": "text", "content": continuation_conversation[0]["content"]}]}]
             ),
         }
         if output_messages:

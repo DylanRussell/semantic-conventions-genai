@@ -38,7 +38,7 @@
 | gen_ai.request.temperature | [pydantic-ai] |
 | gen_ai.request.top_p | [pydantic-ai] |
 | gen_ai.response.finish_reasons | [anthropic], [autogen], [aws-bedrock], [azure-ai-inference], [cohere], [dspy], [google-genai], [groq], [instructor], [litellm], [llamaindex], [mistralai], [openai], [pydantic-ai], [vertexai] |
-| gen_ai.response.id | [anthropic], [azure-ai-inference], [cohere], [dspy], [groq], [instructor], [litellm], [llamaindex], [mistralai], [openai], [pydantic-ai] |
+| gen_ai.response.id | [anthropic], [azure-ai-inference], [cohere], [dspy], [google-genai], [groq], [instructor], [litellm], [llamaindex], [mistralai], [openai], [pydantic-ai] |
 | gen_ai.response.model | [anthropic], [azure-ai-inference], [dspy], [google-genai], [groq], [instructor], [litellm], [llamaindex], [mistralai], [openai], [pydantic-ai] |
 | gen_ai.response.time_to_first_chunk | (none) |
 | gen_ai.usage.cache_creation.input_tokens | [anthropic] |

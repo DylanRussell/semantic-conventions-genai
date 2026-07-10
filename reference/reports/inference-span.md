@@ -38,7 +38,7 @@
 | gen_ai.request.temperature | [autogen], [crewai], [google-adk], [llamaindex], [openai], [pydantic-ai] |
 | gen_ai.request.top_p | [autogen], [crewai], [google-adk], [openai], [pydantic-ai] |
 | gen_ai.response.finish_reasons | [anthropic], [autogen], [aws-bedrock], [azure-ai-inference], [azure-openai], [claude-agent-sdk], [cohere], [crewai], [dspy], [google-adk], [google-genai], [groq], [instructor], [langchain], [litellm], [llamaindex], [mistralai], [openai], [pydantic-ai], [vertexai] |
-| gen_ai.response.id | [agent-framework], [anthropic], [autogen], [azure-ai-inference], [azure-openai], [claude-agent-sdk], [cohere], [crewai], [dspy], [groq], [instructor], [langchain], [litellm], [llamaindex], [mistralai], [openai], [openai-agents], [pydantic-ai] |
+| gen_ai.response.id | [agent-framework], [anthropic], [autogen], [azure-ai-inference], [azure-openai], [claude-agent-sdk], [cohere], [crewai], [dspy], [google-genai], [groq], [instructor], [langchain], [litellm], [llamaindex], [mistralai], [openai], [openai-agents], [pydantic-ai] |
 | gen_ai.response.model | [agent-framework], [anthropic], [autogen], [azure-ai-inference], [azure-openai], [claude-agent-sdk], [crewai], [dspy], [google-genai], [groq], [instructor], [langchain], [litellm], [llamaindex], [mistralai], [openai], [openai-agents], [pydantic-ai] |
 | gen_ai.response.time_to_first_chunk | (none) |
 | gen_ai.usage.cache_creation.input_tokens | [anthropic] |
