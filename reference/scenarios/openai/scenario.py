@@ -279,7 +279,7 @@ def run_responses_continuation_reference(client):
         "gen_ai.operation.name": "chat",
         "gen_ai.provider.name": "openai",
         "gen_ai.request.model": request_model,
-        "gen_ai.request.previous_response_id": previous_response_id,
+        "gen_ai.request.previous_response.id": previous_response_id,
         "openai.api.type": "responses",
     }
     if host:
@@ -314,7 +314,7 @@ def run_responses_continuation_reference(client):
             "gen_ai.operation.name": "chat",
             "gen_ai.provider.name": "openai",
             "gen_ai.request.model": request_model,
-            "gen_ai.request.previous_response_id": previous_response_id,
+            "gen_ai.request.previous_response.id": previous_response_id,
             "gen_ai.response.id": response.id,
             "gen_ai.response.model": response.model,
             "gen_ai.input.messages": json.dumps(

@@ -179,7 +179,7 @@ attributes:
       which input parameter maps to this attribute.
     examples: ['low', 'medium', 'high']
     stability: development
-  - key: gen_ai.request.previous_response_id
+  - key: gen_ai.request.previous_response.id
     type: string
     brief: The unique identifier of a previous response or interaction used to provide context for the current operation.
     note: |

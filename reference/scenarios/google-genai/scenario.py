@@ -116,7 +116,7 @@ def run_interactions_continuation():
         "gen_ai.operation.name": "chat",
         "gen_ai.provider.name": "gcp.gemini",
         "gen_ai.request.model": request_model,
-        "gen_ai.request.previous_response_id": previous_interaction_id,
+        "gen_ai.request.previous_response.id": previous_interaction_id,
     }
     with _reference_tracer.start_as_current_span("chat gemini-2.0-flash", attributes=span_attributes) as span:
         interaction = client.interactions.create(
@@ -138,7 +138,7 @@ def run_interactions_continuation():
             "gen_ai.operation.name": "chat",
             "gen_ai.provider.name": "gcp.gemini",
             "gen_ai.request.model": request_model,
-            "gen_ai.request.previous_response_id": previous_interaction_id,
+            "gen_ai.request.previous_response.id": previous_interaction_id,
             "gen_ai.input.messages": json.dumps(
                 [{"role": "user", "parts": [{"type": "text", "content": prompt_text}]}]
             ),

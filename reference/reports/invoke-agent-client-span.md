@@ -32,7 +32,7 @@
 | gen_ai.request.max_tokens | [azure-ai-foundry], [openai-assistants] |
 | gen_ai.request.model | [azure-ai-foundry], [openai-assistants] |
 | gen_ai.request.presence_penalty | (none) |
-| gen_ai.request.previous_response_id | (none) |
+| gen_ai.request.previous_response.id | (none) |
 | gen_ai.request.stop_sequences | (none) |
 | gen_ai.request.temperature | [azure-ai-foundry], [openai-assistants] |
 | gen_ai.request.top_p | [azure-ai-foundry], [openai-assistants] |

@@ -28,7 +28,7 @@
 | gen_ai.request.max_tokens | [agent-framework], [autogen], [crewai], [google-adk], [pydantic-ai] |
 | gen_ai.request.model | [agent-framework], [autogen], [crewai], [google-adk], [openai-agents], [pydantic-ai] |
 | gen_ai.request.presence_penalty | [agent-framework], [autogen], [crewai], [google-adk], [pydantic-ai] |
-| gen_ai.request.previous_response_id | (none) |
+| gen_ai.request.previous_response.id | (none) |
 | gen_ai.request.stop_sequences | [agent-framework], [autogen], [crewai], [google-adk], [pydantic-ai] |
 | gen_ai.request.temperature | [agent-framework], [autogen], [crewai], [google-adk], [pydantic-ai] |
 | gen_ai.request.top_p | [agent-framework], [autogen], [crewai], [google-adk], [pydantic-ai] |
