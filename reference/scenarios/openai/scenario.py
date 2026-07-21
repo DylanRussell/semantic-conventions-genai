@@ -263,7 +263,6 @@ def run_responses_continuation_reference(client):
     initial_response = client.responses.create(
         model=request_model,
         input=initial_conversation,
-        store=False,
     )
     previous_response_id = initial_response.id
 
@@ -298,7 +297,6 @@ def run_responses_continuation_reference(client):
             model=request_model,
             previous_response_id=previous_response_id,
             input=continuation_conversation,
-            store=False,
         )
 
         span.set_attribute("gen_ai.response.model", response.model)
