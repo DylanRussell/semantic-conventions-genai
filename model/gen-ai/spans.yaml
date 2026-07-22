@@ -107,9 +107,6 @@ attribute_groups:
       - ref: gen_ai.output.type
         requirement_level:
           conditionally_required: When applicable and if the request includes an output format.
-      - ref: gen_ai.request.previous_response.id
-        requirement_level:
-          recommended: When available and if the request references a previous response.
       - ref: gen_ai.response.finish_reasons
         requirement_level: recommended
       - ref: gen_ai.conversation.id
@@ -488,6 +485,9 @@ spans:
         sampling_relevant: true
       - ref: server.port
         sampling_relevant: true
+      - ref: gen_ai.request.previous_response.id
+        requirement_level:
+          recommended: When available and if the request references a previous response.
       - ref: gen_ai.agent.id
         brief: The stable unique identifier of the invoked GenAI agent.
         requirement_level:

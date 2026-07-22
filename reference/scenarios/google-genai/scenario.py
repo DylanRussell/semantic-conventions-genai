@@ -7,6 +7,7 @@ against a mock Google GenAI server, with manual OTel spans.
 import json
 import os
 
+from opentelemetry.trace import SpanKind
 from reference_shared import flush_and_shutdown, reference_event_logger, reference_tracer, setup_otel
 
 MOCK_BASE_URL = os.environ["MOCK_LLM_URL"]
@@ -113,12 +114,13 @@ def run_interactions_continuation():
 
     prompt_text = "Follow up prompt."
     span_attributes = {
-        "gen_ai.operation.name": "chat",
+        "gen_ai.operation.name": "invoke_agent",
         "gen_ai.provider.name": "gcp.gemini",
         "gen_ai.request.model": request_model,
+        "gen_ai.agent.name": "interactions_agent",
         "gen_ai.request.previous_response.id": previous_interaction_id,
     }
-    with _reference_tracer.start_as_current_span("chat gemini-2.0-flash", attributes=span_attributes) as span:
+    with _reference_tracer.start_as_current_span("invoke_agent interactions_agent", kind=SpanKind.CLIENT, attributes=span_attributes) as span:
         interaction = client.interactions.create(
             model=request_model,
             previous_interaction_id=previous_interaction_id,
