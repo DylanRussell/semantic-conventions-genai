@@ -120,7 +120,9 @@ def run_interactions_continuation():
         "gen_ai.agent.name": "interactions_agent",
         "gen_ai.request.previous_response.id": previous_interaction_id,
     }
-    with _reference_tracer.start_as_current_span("invoke_agent interactions_agent", kind=SpanKind.CLIENT, attributes=span_attributes) as span:
+    with _reference_tracer.start_as_current_span(
+        "invoke_agent interactions_agent", kind=SpanKind.CLIENT, attributes=span_attributes
+    ) as span:
         interaction = client.interactions.create(
             model=request_model,
             previous_interaction_id=previous_interaction_id,
