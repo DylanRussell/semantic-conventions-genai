@@ -55,7 +55,8 @@ When an inference span is started, the instrumentation SHOULD store it in the Op
 context under the key `opentelemetry.genai.inference_span`. Any instrumentation that is not
 certain whether it is at the top of the call stack SHOULD check this context key before creating
 an inference span, to decide whether to enrich the existing span or suppress duplicate inference
-spans and metrics for the same model call. See [Handling existing inference spans](#handling-existing-inference-spans)
+spans and metrics for the same model call. If multiple instrumentations modify an attribute,
+the last instrumentation to modify the field wins out. See [Handling existing inference spans](#handling-existing-inference-spans)
 for details.
 
 **Span name** SHOULD be `{gen_ai.operation.name} {gen_ai.request.model}`.
@@ -426,7 +427,7 @@ Because multiple libraries participating in the same model call may be instrumen
 - **Setting the inference span in context**: The library that creates the inference span (the first layer in the call stack to start the span for that model call) SHOULD store the active `Span` in the OpenTelemetry `Context` under the key `opentelemetry.genai.inference_span`. When the inference span finishes (or ends upon error or cancellation), the context SHOULD be restored.
 - **Checking for an existing inference span**: Any instrumentation that is about to create an inference span, if it is not certain whether it is at the top of the call stack or if an upstream library has already started one, SHOULD check whether an active inference span is already present in the current context under `opentelemetry.genai.inference_span`.
 - **Enriching vs. suppressing**: If an active inference span is already present in the context:
-  - Downstream instrumentations MAY enrich the existing span by setting attributes that were not available to the upstream caller (for example, low-level connection attributes such as `server.address` and `server.port`, or provider-specific metadata).
+  - Downstream instrumentations MAY enrich the existing span by setting attributes that were not available to the upstream caller (for example, low-level connection attributes such as `server.address` and `server.port`, or provider-specific metadata). If multiple instrumentations modify an attribute, the last instrumentation to modify the field wins out.
   - Downstream instrumentations SHOULD NOT create a duplicate inference span for the same logical model call.
   - Downstream instrumentations SHOULD NOT record duplicate client metrics (such as `gen_ai.client.operation.duration` or `gen_ai.client.token.usage`) for the call if the existing span records them.
   - If the downstream instrumentation has nothing to add or modify on the existing span, it SHOULD suppress tracing for that call entirely.
