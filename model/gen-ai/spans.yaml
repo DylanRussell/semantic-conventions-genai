@@ -187,6 +187,13 @@ spans:
       call to models running in the same process. It's RECOMMENDED to use `CLIENT` kind
       when the GenAI system being instrumented usually runs in a different process than its
       client or when the GenAI call happens over instrumented protocol such as HTTP.
+
+      When an inference span is started, the instrumentation SHOULD store it in the OpenTelemetry
+      context under the key `opentelemetry.genai.inference_span`. Any instrumentation that is not
+      certain whether it is at the top of the call stack SHOULD check this context key before creating
+      an inference span, to decide whether to enrich the existing span or suppress duplicate inference
+      spans and metrics for the same model call. See [Handling existing inference spans](/docs/gen-ai/gen-ai-spans.md#handling-existing-inference-spans)
+      for details.
     stability: development
     attributes:
       - ref_group: attributes.gen_ai.common
