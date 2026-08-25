@@ -189,11 +189,11 @@ spans:
       client or when the GenAI call happens over instrumented protocol such as HTTP.
 
       When an inference span is started, the instrumentation SHOULD store it in the OpenTelemetry
-      context under the key `opentelemetry.genai.inference_span`. Any instrumentation that is not
-      certain whether it is at the top of the call stack SHOULD check this context key before creating
-      an inference span, to decide whether to enrich the existing span or suppress duplicate inference
-      spans and metrics for the same model call. If multiple instrumentations modify an attribute,
-      the last instrumentation to modify the field wins out. See [Handling existing inference spans](#handling-existing-inference-spans)
+      context using a language-defined context key for inference spans. Any instrumentation that is not
+      certain whether it is at the top of the call stack SHOULD check the context for an existing
+      inference span before creating one, to decide whether to enrich the existing span or suppress
+      duplicate inference spans and metrics for the same model call. If multiple instrumentations
+      modify an attribute, the last instrumentation to modify the field wins out. See [Handling existing inference spans](#handling-existing-inference-spans)
       for details.
     stability: development
     attributes:

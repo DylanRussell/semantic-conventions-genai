@@ -29,9 +29,9 @@ The semantic conventions for GenAI agents extend and override the semantic conve
 
 ## Spans
 
-An inference call may be initiated or wrapped by various libraries in the call stack, including prompt optimization libraries (e.g. DSPy), gateways and proxies (e.g. Portkey), agent frameworks, or underlying provider client libraries. The library that initially creates the inference span SHOULD store it in the OpenTelemetry context under `opentelemetry.genai.inference_span`. Any library that is not certain whether it is at the top of the call stack SHOULD check the context for an existing inference span before creating a new one to avoid duplicate spans and double-counted metrics. If multiple instrumentations modify an attribute on the span, the last instrumentation to modify the field wins out.
+An inference call may be initiated or wrapped by various libraries in the call stack, including prompt optimization libraries (e.g. DSPy), gateways and proxies (e.g. Portkey), agent frameworks, or underlying provider client libraries. The library that initially creates the inference span SHOULD store it in the OpenTelemetry context using the language-defined context key for inference spans. Any library that is not certain whether it is at the top of the call stack SHOULD check the context for an existing inference span before creating a new one to avoid duplicate spans and double-counted metrics. If multiple instrumentations modify an attribute on the span, the last instrumentation to modify the field wins out.
 
-Non-inference spans (such as `invoke_agent` or `invoke_workflow`) MUST NOT be stored under `opentelemetry.genai.inference_span`. See [Handling existing inference spans](gen-ai-spans.md#handling-existing-inference-spans).
+Non-inference spans (such as `invoke_agent` or `invoke_workflow`) MUST NOT be stored under the inference span context key. See [Handling existing inference spans](gen-ai-spans.md#handling-existing-inference-spans).
 
 ### Create agent span
 
