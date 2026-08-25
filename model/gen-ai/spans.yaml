@@ -192,7 +192,7 @@ spans:
       context under the key `opentelemetry.genai.inference_span`. Any instrumentation that is not
       certain whether it is at the top of the call stack SHOULD check this context key before creating
       an inference span, to decide whether to enrich the existing span or suppress duplicate inference
-      spans and metrics for the same model call. See [Handling existing inference spans](/docs/gen-ai/gen-ai-spans.md#handling-existing-inference-spans)
+      spans and metrics for the same model call. See [Handling existing inference spans](#handling-existing-inference-spans)
       for details.
     stability: development
     attributes:

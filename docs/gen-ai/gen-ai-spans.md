@@ -55,7 +55,7 @@ When an inference span is started, the instrumentation SHOULD store it in the Op
 context under the key `opentelemetry.genai.inference_span`. Any instrumentation that is not
 certain whether it is at the top of the call stack SHOULD check this context key before creating
 an inference span, to decide whether to enrich the existing span or suppress duplicate inference
-spans and metrics for the same model call. See [Handling existing inference spans](/docs/gen-ai/gen-ai-spans.md#handling-existing-inference-spans)
+spans and metrics for the same model call. See [Handling existing inference spans](#handling-existing-inference-spans)
 for details.
 
 **Span name** SHOULD be `{gen_ai.operation.name} {gen_ai.request.model}`.
@@ -418,13 +418,13 @@ and SHOULD be provided **at span creation time** (if provided at all):
 
 #### Handling existing inference spans
 
-An inference call can be initiated or wrapped by various libraries in the call stack—including prompt programming or optimization frameworks (such as [DSPy](https://github.com/stanfordnlp/dspy)), AI gateways, routers, or proxies (such as [Portkey](https://portkey.ai/) or LiteLLM), agent frameworks, workflow orchestrators, or direct provider client SDKs (such as OpenAI, Anthropic, or Google GenAI).
+An inference call can be initiated or wrapped by various libraries in the call stack, including prompt programming or optimization frameworks (such as [DSPy](https://github.com/stanfordnlp/dspy)), AI gateways, routers, or proxies (such as [Portkey](https://portkey.ai/) or LiteLLM), agent frameworks, workflow orchestrators, or direct provider client SDKs (such as OpenAI, Anthropic, or Google GenAI).
 
 Because multiple libraries participating in the same model call may be instrumented simultaneously:
 
 - **Context key**: Instrumentations SHOULD use the well-known context key `opentelemetry.genai.inference_span` to store and access the active inference span in the OpenTelemetry `Context`.
 - **Setting the inference span in context**: The library that creates the inference span (the first layer in the call stack to start the span for that model call) SHOULD store the active `Span` in the OpenTelemetry `Context` under the key `opentelemetry.genai.inference_span`. When the inference span finishes (or ends upon error or cancellation), the context SHOULD be restored.
-- **Checking for an existing inference span**: Any instrumentation that is about to create an inference span—if it is not certain whether it is at the top of the call stack or if an upstream library has already started one—SHOULD check whether an active inference span is already present in the current context under `opentelemetry.genai.inference_span`.
+- **Checking for an existing inference span**: Any instrumentation that is about to create an inference span, if it is not certain whether it is at the top of the call stack or if an upstream library has already started one, SHOULD check whether an active inference span is already present in the current context under `opentelemetry.genai.inference_span`.
 - **Enriching vs. suppressing**: If an active inference span is already present in the context:
   - Downstream instrumentations MAY enrich the existing span by setting attributes that were not available to the upstream caller (for example, low-level connection attributes such as `server.address` and `server.port`, or provider-specific metadata).
   - Downstream instrumentations SHOULD NOT create a duplicate inference span for the same logical model call.
