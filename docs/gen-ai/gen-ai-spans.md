@@ -51,14 +51,14 @@ call to models running in the same process. It's RECOMMENDED to use `CLIENT` kin
 when the GenAI system being instrumented usually runs in a different process than its
 client or when the GenAI call happens over instrumented protocol such as HTTP.
 
-When an inference span is started, the instrumentation SHOULD store it in the OpenTelemetry
-context using a language-defined context key for inference spans. If an inference event is captured,
-the event SHOULD also be put into the context on the request path. Any instrumentation that is not
-certain whether it is at the top of the call stack SHOULD check the context for an existing
-inference span or event before creating one, to decide whether to enrich the existing span and event or suppress
-duplicate inference spans, events, and metrics for the same model call. If multiple instrumentations
-modify an attribute, the last instrumentation to modify the field wins out. See [Handling existing inference spans](#handling-existing-inference-spans)
-for details.
+When starting an inference span, instrumentation SHOULD store it in the OpenTelemetry
+context using a language-defined context key. If capturing an inference event, instrumentation
+SHOULD also store it in the context using a language-defined context key.
+
+Instrumentation SHOULD check the context for an existing inference span before creating one.
+If one is present, it SHOULD NOT create a duplicate span, event, or metric, but MAY enrich
+the existing span and event with additional attributes (last write wins). See
+[Handling existing inference spans](#handling-existing-inference-spans) for details.
 
 **Span name** SHOULD be `{gen_ai.operation.name} {gen_ai.request.model}`.
 Semantic conventions for individual GenAI systems and frameworks MAY specify different span name format
@@ -434,20 +434,14 @@ and SHOULD be provided **at span creation time** (if provided at all):
 
 #### Handling existing inference spans
 
-An inference call can be initiated or wrapped by various libraries in the call stack, including prompt programming or optimization frameworks (such as [DSPy](https://github.com/stanfordnlp/dspy)), AI gateways, routers, or proxies (such as [Portkey](https://portkey.ai/) or LiteLLM), agent frameworks, workflow orchestrators, or direct provider client SDKs (such as OpenAI, Anthropic, or Google GenAI).
+When multiple instrumentations wrap or participate in the same inference call:
 
-Because multiple libraries participating in the same model call may be instrumented simultaneously:
-
-- **Context key**: Language implementations SHOULD expose a context key per signal or operation type (such as for inference spans and inference events) to allow instrumentations within the language ecosystem to coordinate.
-- **Setting the span and event in context**:
-  - The library that creates the inference span (the first layer in the call stack to start the span for that model call) SHOULD store the active `Span` in the OpenTelemetry `Context` using the language-defined context key. When the inference span finishes (or ends upon error or cancellation), the context SHOULD be restored.
-  - If an inference event (such as [`gen_ai.client.inference.operation.details`](gen-ai-events.md#event-gen_aiclientinferenceoperationdetails)) is captured, the instrumentation SHOULD also store the event in the OpenTelemetry `Context` on the request path using the language-defined context key for inference events, allowing instrumentations further down the call stack to modify or enrich it if they wish.
-- **Checking for an existing span or event**: Any instrumentation that is about to create an inference span or emit an inference event, if it is not certain whether it is at the top of the call stack or if an upstream library has already started one, SHOULD check whether an active inference span or event is already present in the current context.
-- **Enriching vs. suppressing**: If an active inference span or event is already present in the context:
-  - Downstream instrumentations MAY enrich the existing span or event by setting attributes or fields that were not available to the upstream caller (for example, low-level connection attributes such as `server.address` and `server.port`, or provider-specific metadata). If multiple instrumentations modify an attribute, the last instrumentation to modify the field wins out.
-  - Downstream instrumentations SHOULD NOT create a duplicate inference span or emit duplicate inference events for the same logical model call.
-  - Downstream instrumentations SHOULD NOT record duplicate client metrics (such as `gen_ai.client.operation.duration` or `gen_ai.client.token.usage`) for the call if the existing span records them.
-  - If the downstream instrumentation has nothing to add or modify on the existing span or event, it SHOULD suppress tracing and event emission for that call entirely.
+- **Context keys**: Language implementations SHOULD define context keys for active inference spans and events.
+- **Setting in context**: Instrumentation starting an inference span SHOULD store the active span in the `Context` using the inference span context key until the span ends. If capturing an inference event, instrumentation SHOULD also store the event in the `Context` using the inference event context key.
+- **Checking context**: Before creating an inference span, instrumentation SHOULD check the `Context` for an existing inference span.
+- **Enriching vs. suppressing**: If an inference span is already present in the `Context`:
+  - Downstream instrumentation SHOULD NOT create a duplicate inference span, emit duplicate inference events, or record duplicate metrics.
+  - Downstream instrumentation MAY enrich the existing span and event with additional attributes. When attributes conflict, the last write wins.
 
 ### Embeddings
 
