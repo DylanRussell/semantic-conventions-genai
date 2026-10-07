@@ -829,6 +829,9 @@ See [Inference Token Metrics](gen-ai-token-metrics.md#metric-gen_aiclientinferen
 
 ## Events
 
+> [!Note]
+> Events are in-development and not yet available in some languages. Check [spec-compliance matrix](https://github.com/open-telemetry/opentelemetry-specification/blob/v1.55.0/spec-compliance-matrix.md#logs) to see the implementation status in corresponding language.
+
 ### Event: `gen_ai.client.inference.operation.details`
 
 <!-- weaver .registry.events[] | select(.name == "gen_ai.client.inference.operation.details") -->
