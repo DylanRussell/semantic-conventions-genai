@@ -653,15 +653,13 @@ applicable `aws.bedrock.*` attributes and are not expected to include
 **[10] `server.address`:** When observed from the client side, and when communicating through an intermediary, `server.address` SHOULD represent the server address behind any intermediaries, for example proxies, if it's available.
 
 **[11] `gen_ai.memory.query.text`:** Instrumentations SHOULD NOT capture this attribute by default. Capture SHOULD be gated
-by an explicit user opt-in via [content capture configuration](/docs/gen-ai/gen-ai-spans.md#content-capture-configuration),
-for example `OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT`.
+by an explicit user opt-in via [content capture configuration](/docs/gen-ai/gen-ai-spans.md#content-capture-configuration).
 
 > [!Warning]
 > This attribute may contain sensitive information.
 
 **[12] `gen_ai.memory.records`:** Instrumentations SHOULD NOT capture this attribute by default. Capture SHOULD be gated
-by an explicit user opt-in via [content capture configuration](/docs/gen-ai/gen-ai-spans.md#content-capture-configuration),
-for example `OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT`.
+by an explicit user opt-in via [content capture configuration](/docs/gen-ai/gen-ai-spans.md#content-capture-configuration).
 
 > [!Warning]
 > This attribute may contain sensitive information including user/PII data.
@@ -973,12 +971,22 @@ Capturing model instructions, prompts, completions, and memory records is gated 
 Instrumentations that support capturing content MUST provide a configuration option to control
 whether content is captured and which telemetry signals receive it.
 
-If this configuration is provided via an environment variable, the environment variable MUST be
-named `OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT`.
+The content capture configuration governs the following attributes and their representation on spans and events:
 
-![Development](https://img.shields.io/badge/-development-blue)
-If this configuration is provided via declarative configuration, the property MUST be configurable
-via `capture_message_content` under `.instrumentation/development.general.gen_ai`.
+- `gen_ai.input.messages`
+- `gen_ai.output.messages`
+- `gen_ai.system_instructions`
+- `gen_ai.tool.call.arguments`
+- `gen_ai.tool.call.result`
+- `gen_ai.memory.query.text`
+- `gen_ai.memory.records`
+
+Attributes providing schemas or operational metadata rather than user/model payload content (such as `gen_ai.tool.definitions` or `gen_ai.memory.record.count`) are not governed by this configuration.
+
+If this configuration is provided via an environment variable, the environment variable MUST be
+named `OTEL_INSTRUMENTATION_GENAI_CAPTURE_CONTENT`. For backward compatibility with existing implementations,
+instrumentations MAY also accept `OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT` as an alias.
+If both are set, `OTEL_INSTRUMENTATION_GENAI_CAPTURE_CONTENT` MUST take precedence.
 
 The configuration MUST support the following values:
 
@@ -1044,11 +1052,12 @@ and export settings accordingly in the OpenTelemetry SDK pipeline.
 
 ##### Content upload configuration
 
-Instrumentations that support content uploading or completion hooks SHOULD support the following
+Instrumentations that support content uploading via completion hooks SHOULD support the following
 standard configuration options:
 
-- **Completion hook**: Specifies the in-process completion hook to load and enable.
+- **Completion hook**: Specifies the qualified method or component name to be called when an operation completes.
   - Environment variable: `OTEL_INSTRUMENTATION_GENAI_COMPLETION_HOOK` (e.g. `upload`).
+  - Declarative configuration: `completion_hook` under `.instrumentation/development.general.gen_ai.upload`
 - **Upload base path**: Specifies the destination path or URI for uploaded prompt and response content.
   It MAY be a local filesystem directory (e.g. `/var/log/genai/prompts`) or a cloud storage URI
   (e.g. `s3://my-bucket/prompts`, `gs://my-bucket/prompts`, `az://my-container/prompts`).
