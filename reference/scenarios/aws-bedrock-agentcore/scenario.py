@@ -23,10 +23,14 @@ TIMESTAMP = datetime(2026, 1, 1, 12, 0, 0, tzinfo=UTC)
 
 def should_capture_content_on_spans() -> bool:
     mode = (
-        os.environ.get("OTEL_INSTRUMENTATION_GENAI_CAPTURE_CONTENT")
-        or os.environ.get("OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT")
-        or ""
-    ).strip().upper()
+        (
+            os.environ.get("OTEL_INSTRUMENTATION_GENAI_CAPTURE_CONTENT")
+            or os.environ.get("OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT")
+            or ""
+        )
+        .strip()
+        .upper()
+    )
     return mode in ("SPAN_ONLY", "SPAN_AND_EVENT")
 
 
