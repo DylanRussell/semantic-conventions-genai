@@ -114,18 +114,19 @@ def run_create_and_update_memory_reference(client, memory_id):
         )
         memory_record_id = response["successfulRecords"][0]["memoryRecordId"]
         span.set_attribute("gen_ai.memory.record.count", len(create_records))
-        span.set_attribute(
-            "gen_ai.memory.records",
-            json.dumps(
-                [
-                    {
-                        "content": create_records[0]["content"]["text"],
-                        "id": memory_record_id,
-                        "metadata": {"author": create_records[0]["metadata"]["author"]["stringValue"]},
-                    }
-                ]
-            ),
-        )
+        if should_capture_content_on_spans():
+            span.set_attribute(
+                "gen_ai.memory.records",
+                json.dumps(
+                    [
+                        {
+                            "content": create_records[0]["content"]["text"],
+                            "id": memory_record_id,
+                            "metadata": {"author": create_records[0]["metadata"]["author"]["stringValue"]},
+                        }
+                    ]
+                ),
+            )
 
     print("  [update_memory] Bedrock AgentCore BatchUpdateMemoryRecords")
     update_records = [
