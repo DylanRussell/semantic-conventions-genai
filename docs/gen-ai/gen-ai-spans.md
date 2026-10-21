@@ -1050,8 +1050,8 @@ and export settings accordingly in the OpenTelemetry SDK pipeline.
 Instrumentations that support content uploading via completion hooks SHOULD support the following
 standard configuration options:
 
-- **Completion hook**: Specifies the qualified method or component name to be called when an operation completes.
-  - Environment variable: `OTEL_INSTRUMENTATION_GENAI_COMPLETION_HOOK` (e.g. `upload`).
+- **Content hook**: Specifies the qualified method or component name to be called when an operation completes.
+  - Environment variable: `OTEL_INSTRUMENTATION_GENAI_CONTENT_HOOK` (e.g. `upload`).
 - **Upload base path**: Specifies the destination path or URI for uploaded prompt and response content.
   It MAY be a local filesystem directory (e.g. `/var/log/genai/prompts`) or a cloud storage URI
   (e.g. `s3://my-bucket/prompts`, `gs://my-bucket/prompts`, `az://my-container/prompts`).
