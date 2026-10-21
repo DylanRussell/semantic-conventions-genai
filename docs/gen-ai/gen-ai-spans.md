@@ -986,7 +986,7 @@ The content capture configuration governs the following attributes and their rep
 - [`gen_ai.memory.query.text`](/docs/registry/attributes/gen-ai.md#gen-ai-memory-query-text)
 - [`gen_ai.memory.records`](/docs/registry/attributes/gen-ai.md#gen-ai-memory-records)
 
-Attributes providing schemas or operational metadata rather than user/model payload content (such as [`gen_ai.tool.definitions`](/docs/registry/attributes/gen-ai.md#gen-ai-tool-definitions) or [`gen_ai.memory.record.count`](/docs/registry/attributes/gen-ai.md#gen-ai-memory-record-count)) are not governed by this configuration.
+Attributes providing schemas rather than user/model payload content (such as [`gen_ai.tool.definitions`](/docs/registry/attributes/gen-ai.md#gen-ai-tool-definitions)) are not governed by this configuration.
 
 Instrumentations SHOULD report content attributes only on the signals (spans and events) that explicitly reference them. If a content attribute is not referenced on a signal, it MUST NOT be reported regardless of content configuration.
 
