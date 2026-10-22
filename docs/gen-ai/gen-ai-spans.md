@@ -972,7 +972,7 @@ such as individual message contents, preserving JSON structure.
 
 ##### Content capture configuration
 
-Capturing model instructions, prompts, completions, and memory records is gated by an explicit user opt-in.
+Capturing model instructions, prompts, completions, retrieval queries, prompt template variables, and memory records is gated by an explicit user opt-in.
 Instrumentations that support capturing content MUST provide a configuration option to control
 whether content is captured and which telemetry signals receive it.
 
@@ -983,12 +983,18 @@ The content capture configuration governs the following attributes and their rep
 - [`gen_ai.system_instructions`](/docs/registry/attributes/gen-ai.md#gen-ai-system-instructions)
 - [`gen_ai.tool.call.arguments`](/docs/registry/attributes/gen-ai.md#gen-ai-tool-call-arguments)
 - [`gen_ai.tool.call.result`](/docs/registry/attributes/gen-ai.md#gen-ai-tool-call-result)
+- [`gen_ai.retrieval.query.text`](/docs/registry/attributes/gen-ai.md#gen-ai-retrieval-query-text)
+- [`gen_ai.prompt.variable.*`](/docs/registry/attributes/gen-ai.md#gen-ai-prompt-variable)
 - [`gen_ai.memory.query.text`](/docs/registry/attributes/gen-ai.md#gen-ai-memory-query-text)
 - [`gen_ai.memory.records`](/docs/registry/attributes/gen-ai.md#gen-ai-memory-records)
 
 Attributes providing schemas rather than user/model payload content (such as [`gen_ai.tool.definitions`](/docs/registry/attributes/gen-ai.md#gen-ai-tool-definitions)) are not governed by this configuration.
 
-Instrumentations SHOULD report content attributes only on the signals (spans and events) that explicitly reference them. If a content attribute is not referenced on a signal, it MUST NOT be reported regardless of content configuration.
+A content attribute MUST NOT be reported on a signal unless that signal's conventions
+reference the attribute or explicitly permit copying it from another signal.
+For example, [GenAI client operation exception events](gen-ai-exceptions.md#generative-ai-client-operation-exception)
+MAY include attributes captured on the corresponding span when configured to do so.
+In either case, the content capture configuration MUST enable content on the destination signal.
 
 If this configuration is provided via an environment variable, the environment variable MUST be
 named `OTEL_INSTRUMENTATION_GENAI_CAPTURE_CONTENT`.
